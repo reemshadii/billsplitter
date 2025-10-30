@@ -11,27 +11,17 @@ st.set_page_config(page_title="Bill Splitter", page_icon="💳", layout="centere
 # -----------------------
 # Theme toggle (light/dark)
 # -----------------------
-if "theme" not in st.session_state:
-    st.session_state.theme = "Light"
-
-def set_theme():
-    st.session_state.theme = "Dark" if st.session_state.theme == "Light" else "Light"
-
-st.sidebar.title("Settings")
-st.sidebar.markdown("Toggle theme and app settings")
-if st.sidebar.button("Toggle Light / Dark Theme"):
-    set_theme()
 
 # -----------------------
 # CSS for both themes
 # -----------------------
 light_css = """
 <style>
-body { background: linear-gradient(120deg,#f7fbff,#eef6f9); color: #1f2937; }
-h1, h2, h3 { font-family: 'Poppins', sans-serif; color: #0f172a; }
-.stButton>button { background-color: #0f172a; color: white; border-radius: 8px; padding: 8px 12px; }
-.card { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 6px 18px rgba(15,23,42,0.08); }
-.small-muted { color: #6b7280; font-size: 0.9rem; }
+body { background: linear-gradient(120deg,#0b1220,#071225); color: #e6eef8; }
+h1, h2, h3 { font-family: 'Poppins', sans-serif; color: #e6eef8; }
+.stButton>button { background-color: #06b6d4; color: #042d35; border-radius: 8px; padding: 8px 12px; font-weight:700; }
+.card { background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border-radius: 12px; padding: 16px; box-shadow: 0 6px 18px rgba(2,6,23,0.6); }
+.small-muted { color: #9ca3af; font-size: 0.9rem; }
 </style>
 """
 
