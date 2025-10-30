@@ -25,17 +25,7 @@ h1, h2, h3 { font-family: 'Poppins', sans-serif; color: #e6eef8; }
 </style>
 """
 
-dark_css = """
-<style>
-body { background: linear-gradient(120deg,#0b1220,#071225); color: #e6eef8; }
-h1, h2, h3 { font-family: 'Poppins', sans-serif; color: #e6eef8; }
-.stButton>button { background-color: #06b6d4; color: #042d35; border-radius: 8px; padding: 8px 12px; font-weight:700; }
-.card { background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border-radius: 12px; padding: 16px; box-shadow: 0 6px 18px rgba(2,6,23,0.6); }
-.small-muted { color: #9ca3af; font-size: 0.9rem; }
-</style>
-"""
-
-st.markdown(light_css if st.session_state.theme == "Light" else dark_css, unsafe_allow_html=True)
+st.markdown(light_css)
 
 # -----------------------
 # Header
