@@ -1,25 +1,20 @@
 import streamlit as st
 import pandas as pd
-
-# =========================
-# 🎨 PAGE CONFIG & STYLE
-# =========================
 st.set_page_config(page_title="Bill Splitter", page_icon="💳", layout="centered")
 
 st.markdown("""
 <style>
-/* Page background and font */
-body {
-    background: linear-gradient(to bottom right, #f5f7fa, #c3cfe2);
-}
+/* Global typography & layout */
 h1, h2, h3 {
-    color: #2c3e50;
     text-align: left !important;
     font-family: 'Poppins', sans-serif;
+    color: #2c3e50;
 }
 label, .stTextInput>div>div>input, .stNumberInput>div>div>input {
     font-family: 'Poppins', sans-serif;
 }
+
+/* Buttons */
 .stButton>button {
     background-color: #2c3e50;
     color: white;
@@ -29,59 +24,56 @@ label, .stTextInput>div>div>input, .stNumberInput>div>div>input {
 .stButton>button:hover {
     background-color: #34495e;
 }
+
+/* Card styling */
 .card {
     background-color: white;
     padding: 16px;
     border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
-/* Hide + and - buttons from number inputs */
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
+
+/* Hide + / - buttons for number inputs */
+div[data-baseweb="input"] input[type=number]::-webkit-inner-spin-button,
+div[data-baseweb="input"] input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
-input[type=number] {
+div[data-baseweb="input"] input[type=number] {
     -moz-appearance: textfield;
+    appearance: textfield;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# =========================
-# 🧮 APP LOGIC
-# =========================
-st.title("💳 Bill Splitter")
-st.write("A fair and precise bill-splitting tool — includes tax & service fees distributed proportionally to each person's items.")
+st.title("Bill Splitter")
 
-# ---- Step 1: Bill details ----
 with st.expander("🧾 Step 1: Bill Details", expanded=True):
-    total_bill = st.number_input("Total bill amount (before tax & service)", min_value=0.0, step=1.0, format="%.2f")
+    total_bill = st.number_input("Total bill amount (before tax & service)", min_value=0.0, step=None, format="%.2f")
 
     tax_mode = st.radio("Tax input mode", ("Percentage (%)", "Fixed amount"), index=0, horizontal=True)
     if tax_mode == "Percentage (%)":
-        tax_percent = st.number_input("Tax (%)", min_value=0.0, value=10.0, step=1.0)
+        tax_percent = st.number_input("Tax (%)", min_value=0.0, step=None, value=10.0, format="%.2f")
         tax_value = None
     else:
-        tax_value = st.number_input("Tax amount (fixed)", min_value=0.0, value=0.0, step=1.0)
+        tax_value = st.number_input("Tax amount (fixed)", min_value=0.0, step=None, value=0.0, format="%.2f")
         tax_percent = None
 
     service_mode = st.radio("Service input mode", ("Percentage (%)", "Fixed amount"), index=0, horizontal=True)
     if service_mode == "Percentage (%)":
-        service_percent = st.number_input("Service (%)", min_value=0.0, value=12.0, step=1.0)
+        service_percent = st.number_input("Service (%)", min_value=0.0, step=None, value=12.0, format="%.2f")
         service_value = None
     else:
-        service_value = st.number_input("Service amount (fixed)", min_value=0.0, value=0.0, step=1.0)
+        service_value = st.number_input("Service amount (fixed)", min_value=0.0, step=None, value=0.0, format="%.2f")
         service_percent = None
 
-# ---- Step 2: Participants ----
 st.markdown("---")
 st.subheader("👥 Step 2: Add Participants and Their Items")
 
 if "participants" not in st.session_state:
     st.session_state.participants = []
 
-# Add participant form
 with st.form("add_participant", clear_on_submit=True):
     col1, col2 = st.columns([3,1])
     with col1:
@@ -94,7 +86,6 @@ with st.form("add_participant", clear_on_submit=True):
         else:
             st.warning("Please enter a valid name.")
 
-# Show each participant’s card
 if not st.session_state.participants:
     st.info("No participants yet. Add people using the form above.")
 else:
@@ -111,7 +102,7 @@ else:
             with c1:
                 item_name = st.text_input("Item name", key=f"item_name_{idx}", placeholder="e.g. Pizza")
             with c2:
-                item_price = st.number_input("Price", min_value=0.0, step=1.0, key=f"item_price_{idx}")
+                item_price = st.number_input("Price", min_value=0.0, step=None, key=f"item_price_{idx}", format="%.2f")
             with c3:
                 add_item_btn = st.form_submit_button("Add")
             if add_item_btn:
@@ -133,9 +124,8 @@ else:
 
         st.markdown("</div>", unsafe_allow_html=True)
 
-# ---- Step 3: Calculate ----
 st.markdown("---")
-if st.button("💰 Calculate Split"):
+if st.button("Calculate Split"):
     if total_bill <= 0:
         st.error("Please enter a valid total bill amount greater than 0.")
     elif not st.session_state.participants:
@@ -177,12 +167,12 @@ if st.button("💰 Calculate Split"):
                 })
 
         df = pd.DataFrame(results)
-        st.success("✅ Split calculated successfully!")
+        st.success("Split calculated successfully! ✅")
         st.dataframe(df, use_container_width=True)
         st.markdown(f"**Grand Total (bill + tax + service): ${grand_total:.2f}**")
 
         st.download_button(
-            label="⬇️ Download Breakdown as CSV",
+            label="Download Breakdown as CSV ⬇️",
             data=df.to_csv(index=False).encode("utf-8"),
             file_name="bill_splitter_breakdown.csv",
             mime="text/csv"
