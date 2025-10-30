@@ -34,16 +34,23 @@ label, .stTextInput>div>div>input, .stNumberInput>div>div>input {
     margin-bottom: 12px;
 }
 
-/* Hide + / - buttons for number inputs */
+/* Hide all + / - buttons for number inputs (Streamlit 1.38+ compatible) */
 div[data-baseweb="input"] input[type=number]::-webkit-inner-spin-button,
 div[data-baseweb="input"] input[type=number]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+    -webkit-appearance: none !important;
+    margin: 0 !important;
 }
+
 div[data-baseweb="input"] input[type=number] {
-    -moz-appearance: textfield;
-    appearance: textfield;
+    -moz-appearance: textfield !important;
+    appearance: textfield !important;
 }
+
+/* Hide Streamlit's increment/decrement stepper buttons */
+[data-testid="stNumberInput"] button {
+    display: none !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -51,6 +58,8 @@ st.title("Bill Splitter")
 
 with st.expander("🧾 Step 1: Bill Details", expanded=True):
     total_bill = st.number_input("Total bill amount (before tax & service)", min_value=0.0, step=None, format="%.2f")
+    total_bill = st.number_input("Total bill amount (before tax & service)", min_value=0.0, step=None, format="%.2f")
+
 
     tax_mode = st.radio("Tax input mode", ("Percentage (%)", "Fixed amount"), index=0, horizontal=True)
     if tax_mode == "Percentage (%)":
