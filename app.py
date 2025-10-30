@@ -8,12 +8,16 @@ st.set_page_config(page_title="Bill Splitter", page_icon="💳", layout="centere
 
 st.markdown("""
 <style>
+/* Page background and font */
 body {
     background: linear-gradient(to bottom right, #f5f7fa, #c3cfe2);
 }
 h1, h2, h3 {
     color: #2c3e50;
-    text-align: center;
+    text-align: left !important;
+    font-family: 'Poppins', sans-serif;
+}
+label, .stTextInput>div>div>input, .stNumberInput>div>div>input {
     font-family: 'Poppins', sans-serif;
 }
 .stButton>button {
@@ -32,6 +36,15 @@ h1, h2, h3 {
     box-shadow: 0 4px 10px rgba(0,0,0,0.08);
     margin-bottom: 10px;
 }
+/* Hide + and - buttons from number inputs */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type=number] {
+    -moz-appearance: textfield;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -43,22 +56,22 @@ st.write("A fair and precise bill-splitting tool — includes tax & service fees
 
 # ---- Step 1: Bill details ----
 with st.expander("🧾 Step 1: Bill Details", expanded=True):
-    total_bill = st.number_input("Total bill amount (before tax & service)", min_value=0.0, step=0.01, format="%.2f")
+    total_bill = st.number_input("Total bill amount (before tax & service)", min_value=0.0, step=1.0, format="%.2f")
 
     tax_mode = st.radio("Tax input mode", ("Percentage (%)", "Fixed amount"), index=0, horizontal=True)
     if tax_mode == "Percentage (%)":
-        tax_percent = st.number_input("Tax (%)", min_value=0.0, value=10.0, step=0.1)
+        tax_percent = st.number_input("Tax (%)", min_value=0.0, value=10.0, step=1.0)
         tax_value = None
     else:
-        tax_value = st.number_input("Tax amount (fixed)", min_value=0.0, value=0.0, step=0.01)
+        tax_value = st.number_input("Tax amount (fixed)", min_value=0.0, value=0.0, step=1.0)
         tax_percent = None
 
     service_mode = st.radio("Service input mode", ("Percentage (%)", "Fixed amount"), index=0, horizontal=True)
     if service_mode == "Percentage (%)":
-        service_percent = st.number_input("Service (%)", min_value=0.0, value=12.0, step=0.1)
+        service_percent = st.number_input("Service (%)", min_value=0.0, value=12.0, step=1.0)
         service_value = None
     else:
-        service_value = st.number_input("Service amount (fixed)", min_value=0.0, value=0.0, step=0.01)
+        service_value = st.number_input("Service amount (fixed)", min_value=0.0, value=0.0, step=1.0)
         service_percent = None
 
 # ---- Step 2: Participants ----
@@ -98,13 +111,13 @@ else:
             with c1:
                 item_name = st.text_input("Item name", key=f"item_name_{idx}", placeholder="e.g. Pizza")
             with c2:
-                item_price = st.number_input("Price", min_value=0.0, step=0.01, key=f"item_price_{idx}")
+                item_price = st.number_input("Price", min_value=0.0, step=1.0, key=f"item_price_{idx}")
             with c3:
                 add_item_btn = st.form_submit_button("Add")
             if add_item_btn:
                 if item_name.strip():
                     p["items"].append([item_name.strip(), float(item_price)])
-                    st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.warning("Please enter an item name.")
 
@@ -112,11 +125,11 @@ else:
         with c1:
             if st.button("Remove", key=f"remove_{idx}"):
                 st.session_state.participants.pop(idx)
-                st.experimental_rerun()
+                st.rerun()
         with c2:
             if st.button("Clear items", key=f"clear_{idx}"):
                 p["items"] = []
-                st.experimental_rerun()
+                st.rerun()
 
         st.markdown("</div>", unsafe_allow_html=True)
 
@@ -131,7 +144,6 @@ if st.button("💰 Calculate Split"):
         subtotals = {p["name"]: sum(it[1] for it in p["items"]) for p in st.session_state.participants}
         total_items_value = sum(subtotals.values())
 
-        # Compute tax & service values
         computed_tax = tax_value if tax_value is not None else total_bill * (tax_percent / 100.0 if tax_percent is not None else 0)
         computed_service = service_value if service_value is not None else total_bill * (service_percent / 100.0 if service_percent is not None else 0)
         grand_total = total_bill + computed_tax + computed_service
